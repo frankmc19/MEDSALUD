@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Servicio } from '../citas/models/servicio.model';
+import { ServicioService } from '../citas/services/servicio.service';
 
 declare const $: any;
 declare interface RouteInfo {
@@ -17,7 +19,6 @@ export const ROUTES: RouteInfo[] = [
   { path: '/citas/chat-bot', title: 'Chat Bot', icon: 'pe-7s-news-paper', class: '' },
   { path: '/citas/consultar-agenda', title: 'Consultar agenda', icon: 'pe-7s-news-paper', class: '' },
   { path: '/citas/consultar-horario', title: 'Consultar horario', icon: 'pe-7s-news-paper', class: '' },
-  { path: '/citas/consultar-servicio', title: 'Consultar servicio', icon: 'pe-7s-news-paper', class: '' },
 ];
 
 @Component({
@@ -26,12 +27,16 @@ export const ROUTES: RouteInfo[] = [
 })
 export class SidebarComponent implements OnInit {
   menuItems: any[];
+  servicios: Servicio[] = [];
+  servicioS:Servicio;
 
-  constructor() { }
+  constructor(private servicioService: ServicioService) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.menuItems = ROUTES.filter(menuItem => menuItem);
     this.menuItems.push()
+    var dataServicios = await this.servicioService.listar().toPromise();
+    this.servicios = dataServicios.data
   }
   isMobileMenu() {
     if ($(window).width() > 991) {
@@ -39,4 +44,8 @@ export class SidebarComponent implements OnInit {
     }
     return true;
   };
+  Seleccion(valor){
+    this.servicioS = this.servicios.find(item => item._id?.trim() == valor);
+    this.servicioService.servicioSeleccionado=this.servicioS; 
+}
 }

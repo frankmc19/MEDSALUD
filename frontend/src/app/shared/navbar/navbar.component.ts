@@ -1,28 +1,34 @@
-import { Component, OnInit, ElementRef } from '@angular/core';
+import { Component, OnInit, ElementRef, Injectable } from '@angular/core';
 import { ROUTES } from '../../sidebar/sidebar.component';
 import {Location, LocationStrategy, PathLocationStrategy} from '@angular/common';
+import { Servicio } from '../../citas/models/servicio.model';
+import { ServicioService } from '../../citas/services/servicio.service';
 
 @Component({
     // moduleId: module.id,
     selector: 'navbar-cmp',
     templateUrl: 'navbar.component.html'
 })
-
 export class NavbarComponent implements OnInit{
+    servicios: Servicio[] = [];
+    servicioS: Servicio;
+    //eventoSeleccionado: Servicio;
     private listTitles: any[];
     location: Location;
     private toggleButton: any;
     private sidebarVisible: boolean;
 
-    constructor(location: Location,  private element: ElementRef) {
+    constructor(location: Location,  private element: ElementRef, private servicioService: ServicioService) {
       this.location = location;
           this.sidebarVisible = false;
     }
 
-    ngOnInit(){
+    async ngOnInit(){
       this.listTitles = ROUTES.filter(listTitle => listTitle);
       const navbar: HTMLElement = this.element.nativeElement;
       this.toggleButton = navbar.getElementsByClassName('navbar-toggle')[0];
+      var dataServicios = await this.servicioService.listar().toPromise();
+      this.servicios = dataServicios.data
     }
     sidebarOpen() {
         const toggleButton = this.toggleButton;
@@ -63,4 +69,9 @@ export class NavbarComponent implements OnInit{
       }
       return 'Dashboard';
     }
+    Seleccion(valor){
+        this.servicioS = this.servicios.find(item => item._id?.trim() == valor);
+        this.servicioService.servicioSeleccionado=this.servicioS; 
+    }
+
 }
